@@ -7,5 +7,11 @@ void main(List<String> arguments) async {
 
   WorkWithFiles fileWorker = WorkWithFiles();
 
-  await fileWorker.copyingFile(inputFile, outputFile);
+  try {
+    await fileWorker.copyingFile(inputFile, outputFile);
+    print('Файл ${inputFile} успешно скопирован!');
+  }
+  catch(e) {
+    print('Error: ${e.toString()}');
+  }
 }
