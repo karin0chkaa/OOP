@@ -6,7 +6,7 @@ void main() {
  late Directory tempDir;
  late File inputFile;
  late File outputFile;
- late WorkWithFile fileWorker;
+ late WorkWithFiles fileWorker;
 
  setUp((){
   tempDir = Directory.systemTemp.createTempSync();
@@ -16,7 +16,7 @@ void main() {
  });
 
  tearDown((){
-  if (tempDir.exsistsSync()) {
+  if (tempDir.existsSync()) {
    tempDir.deleteSync(recursive: true);
   }
  });
