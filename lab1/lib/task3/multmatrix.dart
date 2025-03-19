@@ -1,6 +1,6 @@
 import 'dart:io';
 
-class WorkWithMatrix {
+class Matrix {
   static List<List<double>>? readFile(String fileName) {
     try {
       List<String> lines = File(fileName).readAsLinesSync();

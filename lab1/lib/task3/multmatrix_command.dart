@@ -28,8 +28,8 @@ class MultMatrixCommand extends Command {
     List<List<double>>? matrix2;
 
     if (firstMatrixFile != null && secondMatrixFile != null) {
-      matrix1 = WorkWithMatrix.readFile(firstMatrixFile);
-      matrix2 = WorkWithMatrix.readFile(secondMatrixFile);
+      matrix1 = Matrix.readFile(firstMatrixFile);
+      matrix2 = Matrix.readFile(secondMatrixFile);
     } else {
       print('Enter the first matrix (3x3), row by row, separated by spaces:');
       List<String> firstInputLines = _getMatrixFromConsole();
@@ -37,8 +37,8 @@ class MultMatrixCommand extends Command {
       print('Enter the second matrix (3x3), row by row, separated by spaces:');
       List<String> secondInputLines = _getMatrixFromConsole();
 
-      matrix1 = WorkWithMatrix.parse(firstInputLines);
-      matrix2 = WorkWithMatrix.parse(secondInputLines);
+      matrix1 = Matrix.parse(firstInputLines);
+      matrix2 = Matrix.parse(secondInputLines);
     }
 
     if (matrix1 == null) {
@@ -52,10 +52,10 @@ class MultMatrixCommand extends Command {
     }
 
     List<List<double>> result =
-        WorkWithMatrix.multiplyMatrices(matrix1, matrix2);
+        Matrix.multiplyMatrices(matrix1, matrix2);
 
     print('Result matrix: ');
-    WorkWithMatrix.printMatrix(result);
+    Matrix.printMatrix(result);
   }
 
   List<String> _getMatrixFromConsole() {
