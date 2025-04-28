@@ -26,13 +26,16 @@ class FindAndReplaceCommand extends Command {
 
   FindAndReplaceCommand() {
     argParser
-    ..addOption('search', abbr: 's', help: 'Text to search for', mandatory: true)
-    ..addOption('replace', abbr: 'r', help: 'Replacement text', mandatory: true)
-    ..addOption('input', abbr: 'i', help: 'Input string or leave empty for stdin');
+      ..addOption('search',
+          abbr: 's', help: 'Text to search for', mandatory: true)
+      ..addOption('replace',
+          abbr: 'r', help: 'Replacement text', mandatory: true)
+      ..addOption('input',
+          abbr: 'i', help: 'Input string or leave empty for stdin');
   }
 
   @override
-  void run() async{
+  void run() async {
     final utils = StringUtils();
 
     if (!argResults!.wasParsed('search')) {
@@ -48,7 +51,7 @@ class FindAndReplaceCommand extends Command {
     final search = argResults!['search'] as String;
     final replace = argResults!['replace'] as String;
     var input = argResults?['input'] as String ?? '';
-    
+
     if (input.isEmpty) {
       print('Enter text to process (Ctrl+D to finish): ');
       input = stdin.readLineSync() ?? '';
@@ -71,7 +74,8 @@ class HTMLDecodeCommand extends Command {
   final description = 'Perform html entity decoding of html string';
 
   HTMLDecodeCommand() {
-    argParser.addOption('input', abbr: 'i', help: 'Input string (or leave empty for stdin)');
+    argParser.addOption('input',
+        abbr: 'i', help: 'Input string (or leave empty for stdin)');
   }
 
   @override
@@ -89,6 +93,7 @@ class HTMLDecodeCommand extends Command {
     }
 
     final result = utils.htmlDecode(input);
+
     print('Result: $result');
   }
 }

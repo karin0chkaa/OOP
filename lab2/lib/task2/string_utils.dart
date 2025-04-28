@@ -7,7 +7,6 @@ class StringUtils {
     final result = StringBuffer();
     final searchLength = search.length;
     final subjectLength = subject.length;
-    int index = 0;
 
     for (int i = 0; i < subjectLength; i++) {
       if (i <= subjectLength - searchLength) {
@@ -25,10 +24,8 @@ class StringUtils {
           continue;
         }
       }
-
       result.write(subject[i]);
     }
-
     return result.toString();
   }
 
@@ -45,7 +42,6 @@ class StringUtils {
         bool foundSemicolon = false;
 
         while (j < length && j < i + 100000) {
-          //ограничение поменять
           final nextCh = html[j];
           entityBuffer.write(nextCh);
 
