@@ -11,6 +11,7 @@ class StringUtils {
     for (int i = 0; i < subjectLength; i++) {
       if (i <= subjectLength - searchLength) {
         bool isMatch = true;
+
         for (int j = 0; j < searchLength; j++) {
           if (subject[i + j] != search[j]) {
             isMatch = false;
@@ -24,8 +25,10 @@ class StringUtils {
           continue;
         }
       }
+
       result.write(subject[i]);
     }
+
     return result.toString();
   }
 
@@ -36,6 +39,7 @@ class StringUtils {
 
     for (int i = 0; i < length; i++) {
       final ch = html[i];
+
       if (ch == '&') {
         final entityBuffer = StringBuffer('&');
         int j = i + 1;

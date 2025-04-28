@@ -3,7 +3,7 @@ import 'package:lab2/task2/choose_function.dart';
 
 void main(List<String> arguments) {
   final runner = CommandRunner('string_utils', 'String manipulation utilities')
-  ..addCommand(ChooseFunctionCommand());
+    ..addCommand(ChooseFunctionCommand());
 
   try {
     runner.run(arguments);

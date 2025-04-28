@@ -91,7 +91,6 @@ class HTMLDecodeCommand extends Command {
         return;
       }
     }
-
     final result = utils.htmlDecode(input);
 
     print('Result: $result');
