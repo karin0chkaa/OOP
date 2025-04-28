@@ -34,6 +34,17 @@ class FindAndReplaceCommand extends Command {
   @override
   void run() async{
     final utils = StringUtils();
+
+    if (!argResults!.wasParsed('search')) {
+      print('Error: --search parameter is required');
+      return;
+    }
+
+    if (!argResults!.wasParsed('replace')) {
+      print('Error: --replace parameter is required');
+      return;
+    }
+
     final search = argResults!['search'] as String;
     final replace = argResults!['replace'] as String;
     var input = argResults?['input'] as String ?? '';
@@ -52,8 +63,8 @@ class FindAndReplaceCommand extends Command {
   }
 }
 
-class  HTMLDecodeCommand extends Command {
-  @ override
+class HTMLDecodeCommand extends Command {
+  @override
   final name = 'html_decode';
 
   @override

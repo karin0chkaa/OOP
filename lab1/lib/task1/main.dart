@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'copy_file.dart';
 
 void main(List<String> arguments) async {
