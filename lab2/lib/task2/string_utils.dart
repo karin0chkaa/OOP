@@ -35,17 +35,18 @@ class StringUtils {
   String htmlDecode(String html) {
     final result = StringBuffer();
     final length = html.length;
-    var i = 0;
+    const maxEntityLength = 100000; //Maximum length of HTML entity
 
     for (int i = 0; i < length; i++) {
       final ch = html[i];
 
       if (ch == '&') {
         final entityBuffer = StringBuffer('&');
+
         int j = i + 1;
         bool foundSemicolon = false;
 
-        while (j < length && j < i + 100000) {
+        while (j < length && j - i <= maxEntityLength) {
           final nextCh = html[j];
           entityBuffer.write(nextCh);
 
