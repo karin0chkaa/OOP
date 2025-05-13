@@ -35,7 +35,6 @@ class StringUtils {
   String htmlDecode(String html) {
     final result = StringBuffer();
     final length = html.length;
-    const maxEntityLength = 100000; //Maximum length of HTML entity
 
     for (int i = 0; i < length; i++) {
       final ch = html[i];
@@ -46,7 +45,7 @@ class StringUtils {
         int j = i + 1;
         bool foundSemicolon = false;
 
-        while (j < length && j - i <= maxEntityLength) {
+        while (j < length) {
           final nextCh = html[j];
           entityBuffer.write(nextCh);
 
