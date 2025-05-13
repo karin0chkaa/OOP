@@ -54,7 +54,7 @@ class StringUtils {
             foundSemicolon = true;
             break;
           }
-          
+
           j++;
         }
 
