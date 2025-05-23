@@ -52,10 +52,43 @@ class TranslateDictionaryCommand extends Command {
         Введите слово для перевода или "..." для выхода
         Введите «help» для получения информации о доступных командах.''');
 
-      await dictionary.startInteractiveSession();
+      await startInteractiveSession(dictionary);
     } catch (e) {
       print('Ошибка: $e');
       print('Создайте новый словарь или проверьте его содержимое.');
     }
+  }
+
+  Future<void> startInteractiveSession(Dictionary dictionary) async {
+    while (true) {
+      stdout.write('> ');
+      var word = stdin.readLineSync(encoding: utf8)?.trim();
+
+      if (word == '...') {
+        dictionary.handleExit();
+        print('До свидания!');
+        break;
+      }
+
+      if (word == null || word.isEmpty) {
+        continue;
+      }
+
+      if (word == 'help') {
+        _printHelp();
+        continue;
+      }
+
+      dictionary.translateWord(word);
+    }
+  }
+
+  void _printHelp() {
+    print('''
+    Другие доступные команды:
+    <слово> - Перевод слова
+    ... - Выход
+    help - Справка
+    ''');
   }
 }
