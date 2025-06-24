@@ -5,184 +5,144 @@ class CommandProcessor {
 
   CommandProcessor(this.tv);
 
-  void processCommands(List<String> commands) {
+  void processCommands(List<String> commands, List<String> outputs) {
     for (final command in commands) {
       try {
         if (command == 'TurnOn') {
-          _processTurnOn();
+          _processTurnOn(outputs);
         } else if (command == 'TurnOff') {
-          _processTurnOff();
+          _processTurnOff(outputs);
         } else if (command == 'Info') {
-          _processInfo();
+          _processInfo(outputs);
         } else if (command.startsWith('SelectChannel')) {
-          _processSelectChannel(command);
+          _processSelectChannel(command, outputs);
         } else if (command == 'SelectPreviousChannel') {
-          _processSelectPreviousChannel();
+          _processSelectPreviousChannel(outputs);
         } else if (command.startsWith('SetChannelName')) {
-          _processSetChannelName(command);
+          _processSetChannelName(command, outputs);
         } else if (command.startsWith('DeleteChannelName')) {
-          _processDeleteChannelName(command);
+          _processDeleteChannelName(command, outputs);
         } else if (command.startsWith('GetChannelName')) {
-          _processGetChannelName(command);
+          _processGetChannelName(command, outputs);
         } else if (command.startsWith('GetChannelByName')) {
-          _processGetChannelByName(command);
+          _processGetChannelByName(command, outputs);
         } else {
-          print('ERROR');
+          outputs.add('ERROR');
         }
       } catch (e) {
-        print('ERROR');
+        outputs.add('ERROR');
       }
     }
   }
 
-  void _processTurnOn() {
-    if (tv.turnOn()) {
-      print('TV is turned on');
-    } else {
-      print('ERROR');
+  void _processTurnOn(List<String> outputs) {
+    tv.turnOn();
+    //print('TV is turned on');
+    outputs.add('TV is turned on');
+  }
+
+  void _processTurnOff(List<String> outputs) {
+    tv.turnOff();
+    //print('TV is turned off');
+    outputs.add('TV is turned off');
+  }
+
+  void _processInfo(List<String> outputs) {
+    if (!tv.isOn) {
+      outputs.add('TV is turned off');
+      return;
+    }
+
+    outputs.add('TV is turned on');
+    outputs.add('Channel is: ${tv.currentChannel}');
+
+    final channelNumbers = <int>[];
+    for (int i = minChannel; i <= maxChannel; i++) {
+      if (tv.getChannelName(i) != null) {
+        channelNumbers.add(i);
+      }
+    }
+    channelNumbers.sort();
+
+    for (final channel in channelNumbers) {
+      final name = tv.getChannelName(channel);
+      outputs.add('$channel - $name');
     }
   }
 
-  void _processTurnOff() {
-    if (tv.turnOff()) {
-      print('TV is turned off');
-    } else {
-      print('ERROR');
-    }
-  }
-
-  void _processInfo() {
-    print(tv.info());
-  }
-
-  void _processSelectChannel(String rawCommand) {
+  void _processSelectChannel(String rawCommand, List<String> outputs) {
     final commandParts = rawCommand.split(' ');
     if (commandParts.length != 2) {
-      print('ERROR');
-      return;
+      throw Exception('Invalid SelectChannel command');
     }
 
     final channelNumberString = commandParts[1];
     final selectedChannel = int.tryParse(channelNumberString);
 
     if (selectedChannel != null) {
-      if (selectedChannel < TVSet.minChannel ||
-          selectedChannel > TVSet.maxChannel) {
-        print('ERROR');
-        return;
-      }
-
-      if (!tv.isOn) {
-        print('ERROR: TV is turned off');
-        return;
-      }
-
-      if (tv.selectChannel(selectedChannel)) {
-        print('Channel switched to: $selectedChannel');
-      } else {
-        print('ERROR');
-      }
+      tv.selectChannel(selectedChannel);
+      outputs.add('Channel switched to: $selectedChannel');
     } else {
-      if (!tv.isOn) {
-        print('ERROR');
-        return;
-      }
-
-      final name = channelNumberString.trim();
-
-      if (tv.selectChannelByName(name)) {
-        print('Channel switched to: $name');
-      } else {
-        print('ERROR');
-      }
+      tv.selectChannelByName(channelNumberString.trim());
+      outputs.add('Channel switched to: ${channelNumberString.trim()}');
     }
   }
 
-  void _processSelectPreviousChannel() {
-    if (tv.selectPreviousChannel()) {
-      print('Switched to previous channel');
-    } else {
-      print('ERROR');
-    }
+  void _processSelectPreviousChannel(List<String> outputs) {
+    tv.selectPreviousChannel();
+    outputs.add('Switched to previous channel');
   }
 
-  void _processSetChannelName(String rawCommand) {
+  void _processSetChannelName(String rawCommand, List<String> outputs) {
     final commandParts = rawCommand.split(' ');
     if (commandParts.length < 3) {
-      print('ERROR');
-      return;
+      throw Exception('Invalid SetChannelName command');
     }
 
     final channel = int.tryParse(commandParts[1]);
     if (channel == null) {
-      print('ERROR');
-      return;
+      throw Exception('Invalid channel number');
     }
 
     final name = commandParts.sublist(2).join(' ').trim();
-    if (name.isEmpty) {
-      print('ERROR');
-      return;
-    }
-
-    if (tv.setChannelName(channel, name)) {
-      print('Channel name set: $channel - $name');
-    } else {
-      print('ERROR');
-    }
+    tv.setChannelName(channel, name);
+    outputs.add('Channel name set: $channel - $name');
   }
 
-  void _processDeleteChannelName(String rawCommand) {
+  void _processDeleteChannelName(String rawCommand, List<String> outputs) {
     final parts = rawCommand.split(' ');
     if (parts.length < 2) {
-      print('ERROR');
-      return;
+      throw Exception('Invalid DeleteChannelName command');
     }
 
     final name = parts.sublist(1).join(' ').trim();
-    if (name.isEmpty) {
-      print('ERROR');
-      return;
-    }
-
-    if (tv.deleteChannelName(name)) {
-      print('Channel name deleted: $name');
-    } else {
-      print('ERROR');
-    }
+    tv.deleteChannelName(name);
+    outputs.add('Channel name deleted: $name');
   }
 
-  void _processGetChannelName(String rawCommand) {
+  void _processGetChannelName(String rawCommand, List<String> outputs) {
     final parts = rawCommand.split(' ');
     if (parts.length != 2) {
-      print('ERROR');
-      return;
+      throw Exception('Invalid GetChannelName command');
     }
 
     final channel = int.tryParse(parts[1]);
     if (channel == null) {
-      print('ERROR');
-      return;
+      throw Exception('Invalid channel number');
     }
 
     final name = tv.getChannelName(channel);
-    print(name != null ? 'Channel $channel name: $name' : 'ERROR');
+    outputs.add(name != null ? 'Channel $channel name: $name' : 'ERROR');
   }
 
-  void _processGetChannelByName(String rawCommand) {
+  void _processGetChannelByName(String rawCommand, List<String> outputs) {
     final parts = rawCommand.split(' ');
     if (parts.length < 2) {
-      print('ERROR');
-      return;
+      throw Exception('Invalid GetChannelByName command');
     }
 
     final name = parts.sublist(1).join(' ').trim();
-    if (name.isEmpty) {
-      print('ERROR');
-      return;
-    }
-
     final channel = tv.getChannelByName(name);
-    print(channel != null ? 'Channel for name $name: $channel' : 'ERROR');
+    outputs.add(channel != null ? 'Channel for name $name: $channel' : 'ERROR');
   }
 }

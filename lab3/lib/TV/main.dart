@@ -5,15 +5,17 @@ import 'command_processor.dart';
 void main() {
   final tv = TVSet();
   final processor = CommandProcessor(tv);
-  final input = <String>[];
+  final outputs = <String>[];
 
   while (true) {
     final line = stdin.readLineSync();
     if (line == null || line.isEmpty) {
       break;
     }
-    input.add(line);
+    processor.processCommands([line], outputs);
   }
 
-  processor.processCommands(input);
+  for (final output in outputs) {
+    print(output);
+  }
 }

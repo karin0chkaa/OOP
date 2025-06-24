@@ -1,114 +1,119 @@
-class TVSet {
-  static const int minChannel = 1;
-  static const int maxChannel = 99;
+const int minChannel = 1;
+const int maxChannel = 99;
 
+class TVSet {
   bool _isOn = false;
-  int _currentChannel = 1;
+  int _currentChannel = minChannel;
   int? _previousChannel;
   final Map<int, String> _channelNames = {};
-  final Map<String, int> _nameToChannel = {};
 
   bool get isOn => _isOn;
 
   int get currentChannel => _isOn ? _currentChannel : 0;
 
-  bool turnOn() {
+  void turnOn() {
     if (_isOn) {
-      return false;
+      throw Exception('TV is already on');
     }
 
     _isOn = true;
-    return true;
   }
 
-  bool turnOff() {
+  void turnOff() {
     if (!_isOn) {
-      return true;
+      throw Exception('TV is already off');
     }
 
     _isOn = false;
-    return true;
   }
 
-  bool selectChannel(int channel) {
-    if (!_isOn || channel < minChannel || channel > maxChannel) {
-      return false;
+  void selectChannel(int channel) {
+    if (!_isOn) {
+      throw Exception('TV is turned off');
+    }
+
+    if (channel < minChannel || channel > maxChannel) {
+      throw Exception('Channel must be between $minChannel and $maxChannel');
+    }
+
+    if (channel == _currentChannel) {
+      return;
     }
 
     _previousChannel = _currentChannel;
     _currentChannel = channel;
-    return true;
   }
 
-  bool selectPreviousChannel() {
-    if (!_isOn || _previousChannel == null) {
-      return false;
-    }
-
-    final temp = _currentChannel;
-    _currentChannel = _previousChannel!;
-    _previousChannel = temp;
-    return true;
-  }
-
-  bool selectChannelByName(String name) {
+  void selectPreviousChannel() {
     if (!_isOn) {
-      return false;
+      throw Exception('TV is turned off');
     }
 
-    final channel = _nameToChannel[name];
+    if (_previousChannel == null) {
+      throw Exception('No previous channel to return to');
+    }
+
+    _currentChannel = _previousChannel!;
+    _previousChannel = null;
+  }
+
+  void selectChannelByName(String name) {
+    if (!_isOn) {
+      throw Exception('TV is turned off');
+    }
+
+    final trimmedName = name.trim();
+    final channel = _getChannelByName(trimmedName);
     if (channel == null) {
-      return false;
+      throw Exception('No channel found with name "$trimmedName"');
     }
 
     return selectChannel(channel);
   }
 
-  bool setChannelName(int channel, String name) {
-    if (!_isOn || channel < minChannel || channel > maxChannel) {
-      return false;
+  void setChannelName(int channel, String name) {
+    if (!_isOn) {
+      throw Exception('TV is turned off');
+    }
+
+    if (channel < minChannel || channel > maxChannel) {
+      throw Exception('Channel must be between $minChannel and $maxChannel');
     }
 
     final trimmedName = name.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (trimmedName.isEmpty) {
-      return false;
+      throw Exception('Channel name cannot be empty or whitespace');
     }
 
-    if (_channelNames.containsKey(channel)) {
-      final oldName = _channelNames[channel];
-      _nameToChannel.remove(oldName);
-    }
-
-    if (_nameToChannel.containsKey(trimmedName)) {
-      final oldChannel = _nameToChannel[trimmedName]!;
+    final oldChannel = _getChannelByName(trimmedName);
+    if (oldChannel != null) {
       _channelNames.remove(oldChannel);
     }
 
     _channelNames[channel] = trimmedName;
-    _nameToChannel[trimmedName] = channel;
-
-    return true;
   }
 
-  bool deleteChannelName(String name) {
+  void deleteChannelName(String name) {
     if (!_isOn) {
-      return false;
+      throw Exception('TV is turned off');
     }
 
     final trimmedName = name.trim();
-    if (!_nameToChannel.containsKey(trimmedName)) {
-      return false;
+    final channel = _getChannelByName(trimmedName);
+    if (channel == null) {
+      throw Exception('No channel found with name "$trimmedName"');
     }
 
-    final channel = _nameToChannel[trimmedName]!;
-    _nameToChannel.remove(trimmedName);
     _channelNames.remove(channel);
-    return true;
   }
 
   String? getChannelName(int channel) {
-    if (!_isOn || channel < minChannel || channel > maxChannel) {
-      return null;
+    if (!_isOn) {
+      throw Exception('TV is turned off');
+    }
+
+    if (channel < minChannel || channel > maxChannel) {
+      throw Exception('Channel must be between $minChannel and $maxChannel');
     }
 
     return _channelNames[channel];
@@ -116,27 +121,19 @@ class TVSet {
 
   int? getChannelByName(String name) {
     if (!_isOn) {
-      return null;
+      throw Exception('TV is turned off');
     }
 
-    return _nameToChannel[name.trim()];
+    return _getChannelByName(name.trim());
   }
 
-  String info() {
-    if (!_isOn) {
-      return 'TV is turned off';
-    }
-
-    final info = StringBuffer('TV is turned on\nChannel is: $_currentChannel');
-
-    if (_channelNames.isNotEmpty) {
-      final sortedChannels = _channelNames.keys.toList()..sort();
-
-      for (final channel in sortedChannels) {
-        info.write('\n$channel - ${_channelNames[channel]}');
+  int? _getChannelByName(String name) {
+    for (final channelEntry in _channelNames.entries) {
+      if (channelEntry.value == name) {
+        return channelEntry.key;
       }
     }
 
-    return info.toString();
+    return null;
   }
 }
