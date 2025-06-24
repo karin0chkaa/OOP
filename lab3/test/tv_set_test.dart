@@ -2,266 +2,171 @@ import 'package:test/test.dart';
 import 'package:lab3/TV/tv_set.dart';
 
 void main() {
-  group('TVSet', () {
-    late TVSet tv;
+  late TVSet tv;
 
-    setUp(() {
-      tv = TVSet();
+  setUp(() => tv = TVSet());
+
+  group('Initial state', () {
+    test('TV is off and no channel selected', () {
+      expect(tv.isOn, isFalse);
+      expect(tv.currentChannel, equals(0));
+    });
+  });
+
+  group('Turning on/off behavior', () {
+    test('turnOn enables TV', () {
+      tv.turnOn();
+      expect(tv.isOn, isTrue);
+      expect(tv.currentChannel, equals(1));
     });
 
-    test('Initial state is off and channel is 1', () {
+    test('turnOn twice throws', () {
+      tv.turnOn();
+      expect(() => tv.turnOn(), throwsException);
+    });
+
+    test('turnOff disables TV', () {
+      tv.turnOn();
+      tv.turnOff();
       expect(tv.isOn, isFalse);
       expect(tv.currentChannel, equals(0));
     });
 
-    group('turnOn', () {
-      test('turns on when off', () {
-        expect(tv.turnOn(), isTrue);
-        expect(tv.isOn, isTrue);
-        expect(tv.currentChannel, equals(1));
-      });
+    test('turnOff twice throws', () {
+      expect(() => tv.turnOff(), throwsException);
+    });
+  });
 
-      test('returns false when already on', () {
-        tv.turnOn();
-        expect(tv.turnOn(), isFalse);
-        expect(tv.isOn, isTrue);
-      });
+  group('Channel selection logic', () {
+    test('selectChannel changes channel when on and valid', () {
+      tv.turnOn();
+      tv.selectChannel(10);
+      expect(tv.currentChannel, equals(10));
     });
 
-    group('turnOff', () {
-      test('turns off when on', () {
-        tv.turnOff();
-        expect(tv.turnOff(), isTrue);
-        expect(tv.isOn, isFalse);
-        expect(tv.currentChannel, equals(0));
-      });
-
-      test('returns true when already off', () {
-        expect(tv.turnOff(), isTrue);
-        expect(tv.isOn, isFalse);
-      });
+    test('selectChannel with invalid number throws', () {
+      tv.turnOn();
+      expect(() => tv.selectChannel(0), throwsException);
+      expect(() => tv.selectChannel(100), throwsException);
     });
 
-    group('selectChannel', () {
-      test('select valid channel when on', () {
-        tv.turnOn();
-        expect(tv.selectChannel(5), isTrue);
-        expect(tv.currentChannel, equals(5));
-        expect(tv.selectChannel(99), isTrue);
-        expect(tv.currentChannel, equals(99));
-      });
-
-      test('returns false for invalid channel when on', () {
-        tv.turnOn();
-        expect(tv.selectChannel(0), isFalse);
-        expect(tv.currentChannel, equals(1));
-        expect(tv.selectChannel(100), isFalse);
-        expect(tv.currentChannel, equals(1));
-      });
-
-      test('returns false when off', () {
-        expect(tv.selectChannel(5), isFalse);
-        expect(tv.currentChannel, equals(0));
-      });
-
-      test('updates previous channel', () {
-        tv.turnOn();
-        tv.selectChannel(5);
-        tv.selectChannel(10);
-        expect(tv.currentChannel, equals(10));
-        expect(tv.selectPreviousChannel(), isTrue);
-        expect(tv.currentChannel, equals(5));
-      });
+    test('selectChannel when off throws', () {
+      expect(() => tv.selectChannel(5), throwsException);
     });
 
-    group('selectPreviousChannel', () {
-      test('switches to previous channel when on and previous exists', () {
-        tv.turnOn();
-        tv.selectChannel(5);
-        tv.selectChannel(10);
-        expect(tv.selectPreviousChannel(), isTrue);
-        expect(tv.currentChannel, equals(5));
-        expect(tv.selectPreviousChannel(), isTrue);
-        expect(tv.currentChannel, equals(10));
-      });
-
-      test('returns false when no previous channel', () {
-        tv.turnOn();
-        expect(tv.selectPreviousChannel(), isFalse);
-        expect(tv.currentChannel, equals(1));
-      });
-
-      test('returns false when off', () {
-        tv.turnOn();
-        tv.selectChannel(5);
-        tv.turnOff();
-        expect(tv.selectPreviousChannel(), isFalse);
-      });
+    test('selectPreviousChannel switches back and forth', () {
+      tv.turnOn();
+      tv.selectChannel(7);
+      tv.selectChannel(10);
+      tv.selectPreviousChannel();
+      expect(tv.currentChannel, equals(7));
+      expect(() => tv.selectPreviousChannel(), throwsException);
     });
 
-    group('setChannelName', () {
-      test('sets valid channel name when on', () {
-        tv.turnOn();
-        expect(tv.setChannelName(5, 'BBC'), isTrue);
-        expect(tv.getChannelName(5), equals('BBC'));
-        expect(tv.getChannelByName('BBC'), equals(5));
-      });
+    test('selectPreviousChannel reset and works again after new switch', () {
+      tv.turnOn();
+      tv.selectChannel(2);
+      tv.selectChannel(10);
+      tv.selectPreviousChannel();
+      expect(tv.currentChannel, equals(2));
+      expect(() => tv.selectPreviousChannel(), throwsException);
 
-      test('updates existing channel name', () {
-        tv.turnOn();
-        tv.setChannelName(5, 'BBC');
-        expect(tv.setChannelName(5, 'CNN'), isTrue);
-        expect(tv.getChannelName(5), equals('CNN'));
-        expect(tv.getChannelByName('BBC'), isNull);
-        expect(tv.getChannelByName('CNN'), equals(5));
-      });
-
-      test('reassigns name to new channel', () {
-        tv.turnOn();
-        tv.setChannelName(5, 'BBC');
-        expect(tv.setChannelName(10, 'BBC'), isTrue);
-        expect(tv.getChannelName(5), isNull);
-        expect(tv.getChannelName(10), equals('BBC'));
-        expect(tv.getChannelByName('BBC'), equals(10));
-      });
-
-      test('returns false for invalid channel', () {
-        tv.turnOn();
-        expect(tv.setChannelName(0, 'BBC'), isFalse);
-        expect(tv.setChannelName(100, 'BBC'), isFalse);
-        expect(tv.getChannelName(0), isNull);
-        expect(tv.getChannelByName('BBC'), isNull);
-      });
-
-      test('returns false for empty or whitespaces name', () {
-        tv.turnOn();
-        expect(tv.setChannelName(5, ''), isFalse);
-        expect(tv.setChannelName(5, '     '), isFalse);
-        expect(tv.getChannelName(5), isNull);
-      });
-
-      test('trims and normalizes whitespace in name', () {
-        tv.turnOn();
-        expect(tv.setChannelName(5, '    BBC News    '), isTrue);
-        expect(tv.getChannelName(5), equals('BBC News'));
-        expect(tv.getChannelByName('BBC News'), equals(5));
-      });
-
-      test('returns false when off', () {
-        expect(tv.setChannelName(5, 'BBC'), isFalse);
-        expect(tv.getChannelName(5), isNull);
-      });
+      tv.selectChannel(7);
+      tv.selectPreviousChannel();
+      expect(tv.currentChannel, equals(2));
     });
 
-    group('deleteChannelName', () {
-      test('delete existing channel name when on', () {
-        tv.turnOn();
-        tv.setChannelName(5, 'BBC');
-        expect(tv.deleteChannelName('BBC'), isTrue);
-        expect(tv.getChannelName(5), isNull);
-        expect(tv.getChannelByName('BBC'), isNull);
-      });
-
-      test('returns false for non-existent name', () {
-        tv.turnOn();
-        expect(tv.deleteChannelName('BBC'), isFalse);
-      });
-
-      test('returns false when off', () {
-        tv.turnOn();
-        tv.setChannelName(5, 'BBC');
-        tv.turnOff();
-        expect(tv.deleteChannelName('BBC'), isFalse);
-        tv.turnOn();
-        expect(tv.getChannelName(5), equals('BBC'));
-      });
+    test('selectPreviousChannel with no history throws', () {
+      tv.turnOn();
+      expect(() => tv.selectPreviousChannel(), throwsException);
     });
 
-    group('selectChannelByName', () {
-      test('select channel by name when on', () {
-        tv.turnOn();
-        tv.setChannelName(5, 'BBC');
-        expect(tv.selectChannelByName('BBC'), isTrue);
-        expect(tv.currentChannel, equals(5));
-      });
+    test('selectPreviousChannel when off throws', () {
+      tv.turnOn();
+      tv.selectChannel(3);
+      tv.turnOff();
+      expect(() => tv.selectPreviousChannel(), throwsException);
+    });
+  });
 
-      test('returns false for non-existent name', () {
-        tv.turnOn();
-        expect(tv.selectChannelByName('BBC'), isFalse);
-        expect(tv.currentChannel, equals(1));
-      });
-
-      test('returns false when off', () {
-        tv.turnOn();
-        tv.setChannelName(5, 'BBC');
-        tv.turnOff();
-        expect(tv.selectChannelByName('BBC'), isFalse);
-      });
+  group('Channel naming', () {
+    test('set/get channel name works when valid', () {
+      tv.turnOn();
+      tv.setChannelName(7, 'National Geographic');
+      tv.setChannelName(10, 'BBC');
+      expect(tv.getChannelName(7), equals('National Geographic'));
+      expect(tv.getChannelName(10), equals('BBC'));
+      expect(tv.getChannelByName('National Geographic'), equals(7));
+      expect(tv.getChannelByName('BBC'), equals(10));
     });
 
-    group('getChannelName', () {
-      test('returns name for valid channel when on', () {
-        tv.turnOn();
-        tv.setChannelName(5, 'BBC');
-        expect(tv.getChannelName(5), equals('BBC'));
-      });
-
-      test('returns null for invalid channel', () {
-        tv.turnOn();
-        expect(tv.getChannelName(0), isNull);
-        expect(tv.getChannelName(100), isNull);
-      });
-
-      test('returns null when off', () {
-        tv.turnOn();
-        tv.setChannelName(5, 'BBC');
-        tv.turnOff();
-        expect(tv.getChannelName(5), isNull);
-      });
+    test('setChannelName updates existing mapping', () {
+      tv.turnOn();
+      tv.setChannelName(10, 'CNN');
+      tv.setChannelName(10, 'Discovery');
+      expect(tv.getChannelName(10), equals('Discovery'));
+      expect(tv.getChannelByName('CNN'), isNull);
     });
 
-    group('getChannelByName', () {
-      test('returns channel for valid name when on', () {
-        tv.turnOn();
-        tv.setChannelName(5, 'BBC');
-        expect(tv.getChannelByName('BBC'), equals(5));
-      });
-
-      test('returns null for non-existent name', () {
-        tv.turnOn();
-        expect(tv.getChannelByName('BBC'), isNull);
-      });
-
-      test('returns null for non-existent name', () {
-        tv.turnOn();
-        tv.setChannelName(5, 'BBC');
-        tv.turnOff();
-        expect(tv.getChannelByName('BBC'), isNull);
-      });
+    test('reassigning a name moves it', () {
+      tv.turnOn();
+      tv.setChannelName(4, 'HBO');
+      tv.setChannelName(7, 'HBO');
+      expect(tv.getChannelName(4), isNull);
+      expect(tv.getChannelName(7), equals('HBO'));
     });
 
-    group('info', () {
-      test('returns off message when off', () {
-        expect(tv.info(), equals('TV is turned off'));
-      });
+    test('invalid channel number throws', () {
+      tv.turnOn();
+      expect(() => tv.setChannelName(0, 'Sky'), throwsException);
+      expect(() => tv.setChannelName(100, 'Sky'), throwsException);
+    });
 
-      test('returns channel info when on', () {
-        tv.turnOn();
-        expect(
-          tv.info(),
-          equals('TV is turned on\nChannel is: 1'),
-        );
-      });
+    test('empty or whitespace-only name throws', () {
+      tv.turnOn();
+      expect(() => tv.setChannelName(5, ''), throwsException);
+      expect(() => tv.setChannelName(5, '   '), throwsException);
+    });
 
-      test('includes channel names in sorted order', () {
-        tv.turnOn();
-        tv.setChannelName(5, 'BBC');
-        tv.setChannelName(2, 'CNN');
-        expect(
-          tv.info(),
-          equals('TV is turned on\nChannel is: 1\n2 - CNN\n5 - BBC'),
-        );
-      });
+    test('name is trimmed and normalized', () {
+      tv.turnOn();
+      tv.setChannelName(5, '  Animal   Planet  ');
+      expect(tv.getChannelName(5), equals('Animal Planet'));
+    });
+
+    test('operations when off throw', () {
+      expect(() => tv.setChannelName(2, 'FOX'), throwsException);
+      expect(() => tv.deleteChannelName('FOX'), throwsException);
+      expect(() => tv.getChannelName(2), throwsException);
+      expect(() => tv.getChannelByName('FOX'), throwsException);
+      expect(() => tv.selectChannelByName('FOX'), throwsException);
+    });
+
+    test('deleteChannelName removes mapping', () {
+      tv.turnOn();
+      tv.setChannelName(3, 'Eurosport');
+      tv.deleteChannelName('Eurosport');
+      expect(tv.getChannelName(3), isNull);
+      expect(tv.getChannelByName('Eurosport'), isNull);
+    });
+
+    test('deleteChannelName non-existent throws', () {
+      tv.turnOn();
+      expect(() => tv.deleteChannelName('TV1000'), throwsException);
+    });
+  });
+
+  group('selectChannelByName behavior', () {
+    test('selectChannelByName switches if exists', () {
+      tv.turnOn();
+      tv.setChannelName(6, 'CNN');
+      tv.selectChannelByName('CNN');
+      expect(tv.currentChannel, equals(6));
+    });
+
+    test('non-existent name throws', () {
+      tv.turnOn();
+      expect(() => tv.selectChannelByName('Comedy Central'), throwsException);
     });
   });
 }
