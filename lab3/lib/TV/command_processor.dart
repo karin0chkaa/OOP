@@ -37,13 +37,11 @@ class CommandProcessor {
 
   void _processTurnOn(List<String> outputs) {
     tv.turnOn();
-    //print('TV is turned on');
     outputs.add('TV is turned on');
   }
 
   void _processTurnOff(List<String> outputs) {
     tv.turnOff();
-    //print('TV is turned off');
     outputs.add('TV is turned off');
   }
 
