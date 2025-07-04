@@ -1,20 +1,20 @@
 enum Direction { forward, standing, backward }
 
+const _gearLimits = {
+  -1: [0, 20],
+  0: [0, 150],
+  1: [0, 30],
+  2: [20, 50],
+  3: [30, 60],
+  4: [40, 90],
+  5: [50, 150],
+};
+
 class Car {
   bool _engineOn = false;
   int _currentGear = 0;
   int _speed = 0;
   Direction _direction = Direction.standing;
-
-  static final Map<int, List<int>> _gearLimits = {
-    -1: [0, 20],
-    0: [0, 150],
-    1: [0, 30],
-    2: [20, 50],
-    3: [30, 60],
-    4: [40, 90],
-    5: [50, 150],
-  };
 
   bool get isEngineOn => _engineOn;
 
@@ -22,16 +22,7 @@ class Car {
 
   int get currentSpeed => _speed;
 
-  String get direction {
-    switch (_direction) {
-      case Direction.forward:
-        return 'forward';
-      case Direction.standing:
-        return 'standing';
-      case Direction.backward:
-        return 'backward';
-    }
-  }
+  String get direction => _direction.name;
 
   void turnOnEngine() {
     if (_engineOn) {
@@ -82,16 +73,13 @@ class Car {
       }
 
       _speed = speed;
-      _updateDirection();
-      return;
+    } else {
+      final limits = _gearLimits[_currentGear]!;
+      if (speed < limits[0] || speed > limits[1]) {
+        throw StateError('Speed is out of gear range');
+      }
+      _speed = speed;
     }
-
-    final limits = _gearLimits[_currentGear]!;
-    if (speed < limits[0] || speed > limits[1]) {
-      throw StateError('Speed is out of gear range');
-    }
-
-    _speed = speed;
     _updateDirection();
   }
 
