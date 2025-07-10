@@ -12,6 +12,9 @@ void main() {
   group('Engine', () {
     test('Initial state is off', () {
       expect(car.isEngineOn, isFalse);
+      expect(car.currentGear, 0);
+      expect(car.currentSpeed, 0);
+      expect(car.direction, 'standing');
     });
 
     test('Car turn on engine', () {
@@ -26,8 +29,11 @@ void main() {
 
     test('Can turn off engine when stopped in neutral', () {
       car.turnOnEngine();
+      expect(car.currentGear, 0);
+      expect(car.currentSpeed, 0);
       car.turnOffEngine();
       expect(car.isEngineOn, isFalse);
+      expect(car.direction, 'standing');
     });
 
     test('Cannot turn off engine when moving', () {
@@ -49,11 +55,13 @@ void main() {
 
     test('Initial gear is neutral', () {
       expect(car.currentGear, 0);
+      expect(car.currentSpeed, 0);
     });
 
     test('Can set valid gear', () {
       car.setGear(1);
       expect(car.currentGear, 1);
+      expect(car.currentSpeed, 0);
     });
 
     test('Cannot set invalid gear (< -1)', () {
@@ -62,11 +70,6 @@ void main() {
 
     test('Cannot set invalid gear (> 5)', () {
       expect(() => car.setGear(6), throwsArgumentError);
-    });
-
-    test('Cannot set gear when engine is off', () {
-      car.turnOffEngine();
-      expect(() => car.setGear(1), throwsStateError);
     });
 
     test('Cannot set gear when engine is off', () {
@@ -90,20 +93,20 @@ void main() {
       car.setSpeed(5);
       expect(() => car.setGear(1), throwsStateError);
     });
-
   });
 
   group('Speed', () {
     setUp(() => car.turnOnEngine());
 
     test('Initial speed is 0', () {
-      expect(car.currentGear, 0);
+      expect(car.currentSpeed, 0);
     });
 
     test('Can set valid speed', () {
       car.setGear(1);
       car.setSpeed(20);
       expect(car.currentSpeed, 20);
+      expect(car.direction, 'forward');
     });
 
     test('Cannot set negative speed', () {
