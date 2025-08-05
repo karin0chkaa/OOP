@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'package:lab4/task1/bodies/cbody.dart';
-import 'package:lab4/task1/bodies/ccompound.dart';
-import 'package:lab4/task1/bodies/ccone.dart';
-import 'package:lab4/task1/bodies/ccylinder.dart';
-import 'package:lab4/task1/bodies/cparallelepiped.dart';
-import 'package:lab4/task1/bodies/csphere.dart';
+import '../bodies/cbody.dart';
+import '../bodies/ccompound.dart';
+import '../bodies/ccone.dart';
+import '../bodies/ccylinder.dart';
+import '../bodies/cparallelepiped.dart';
+import '../bodies/csphere.dart';
 
 enum Command {
   sphere,

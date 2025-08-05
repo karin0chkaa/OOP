@@ -47,19 +47,24 @@ class CCompound extends CBody {
       return "Compound body (empty)\n";
     }
 
-    String result =
-        "Compound body:\n"
-        "Density: ${getDensity().toStringAsFixed(2)} kg/m³\n"
-        "Volume: ${getVolume().toStringAsFixed(2)} m³\n"
-        "Mass: ${getMass().toStringAsFixed(2)} kg\n"
-        "Contains ${_children.length} bodies:\n";
+    final buffer = StringBuffer();
+    final headerLines = [
+      "Compound body:",
+      "Density: ${getDensity().toStringAsFixed(2)} kg/m³",
+      "Volume: ${getVolume().toStringAsFixed(2)} m³",
+      "Mass: ${getMass().toStringAsFixed(2)} kg",
+      "Contains ${_children.length} bodies:",
+      ""
+    ];
+
+    buffer.write(headerLines.join('\n'));
 
     for (var child in _children) {
-      var childStr = child.toString();
-      childStr = childStr.split('\n').map((line) => '  $line').join('\n');
-      result += childStr + '\n';
+      child.toString().split('\n').forEach((line) {
+        buffer.writeln(' $line');
+      });
     }
 
-    return result;
+    return buffer.toString();
   }
 }
