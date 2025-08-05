@@ -7,39 +7,39 @@ import 'package:test/test.dart';
 
 void main() {
   group('CSphere tests', () {
-    test('CSphere volume calculation', () {
+    test('CSphere calculates correct volume for given radius', () {
       final radius = 2.0;
       final sphere = CSphere(1.0, radius);
       expect(sphere.getVolume(), closeTo(33.5103, 0.0001));
     });
 
-    test('CSphere throws on non-positive radius', () {
+    test('CSphere requires positive radius', () {
       expect(() => CSphere(1.0, 0.0), throwsArgumentError);
       expect(() => CSphere(1.0, -1.0), throwsArgumentError);
     });
   });
 
   group('CParallelepiped tests', () {
-    test('CParallelepiped volume calculation', () {
+    test('CParallelepiped calculates correct volume for given dimensions', () {
       final body = CParallelepiped(1.0, 2.0, 3.0, 4.0);
       expect(body.getVolume(), 24.0);
     });
 
-    test('CParallelepiped throws on non-positive dimensions', () {
+    test('CParallelepiped requires positive dimensions', () {
       expect(() => CParallelepiped(1.0, 0.0, 1.0, 1.0), throwsArgumentError);
       expect(() => CParallelepiped(1.0, -1.0, 1.0, 1.0), throwsArgumentError);
     });
   });
 
   group('CCone test', () {
-    test('CCone volume calculation', () {
+    test('CCone calculates correct volume for given radius and height', () {
       const radius = 3.0;
       const height = 4.0;
       final cone = CCone(1.0, radius, height);
       expect(cone.getVolume(), closeTo(37.6991, 0.0001));
     });
 
-    test('CCone throw on non-positive radius or height', () {
+    test('CCone requires positive radius and height', () {
       expect(() => CCone(1.0, 0.0, 1.0), throwsArgumentError);
       expect(() => CCone(1.0, -1.0, 1.0), throwsArgumentError);
       expect(() => CCone(1.0, 1.0, 0.0), throwsArgumentError);
@@ -47,14 +47,14 @@ void main() {
   });
 
   group('CCylinder  test', () {
-    test('CCylinder volume calculation', () {
+    test('CCylinder calculates correct volume for given radius and height', () {
       const radius = 2.0;
       const height = 3.0;
       final cylinder = CCylinder(1.0, radius, height);
       expect(cylinder.getVolume(), closeTo(37.6991, 0.0001));
     });
 
-    test('CCylinder throws on non-positive radius or height', () {
+    test('CCylinder requires positive radius and height', () {
       expect(() => CCylinder(1.0, 0.0, 1.0), throwsArgumentError);
       expect(() => CCylinder(1.0, -1.0, 1.0), throwsArgumentError);
       expect(() => CCylinder(1.0, 1.0, 0.0), throwsArgumentError);
@@ -68,7 +68,7 @@ void main() {
       expect(compound.getMass(), 0.0);
     });
 
-    test('Compound body aggregates volume and mass correctly', () {
+    test('Compound body correctly aggregates child bodies properties', () {
       final sphere = CSphere(2.0, 1.0);
       final cube = CParallelepiped(3.0, 1.0, 1.0, 1.0);
       final compound = CCompound();
@@ -79,7 +79,7 @@ void main() {
       expect(compound.getMass(), closeTo(11.3776, 0.0001));
     });
 
-    test('Compound body prevents cycles', () {
+    test('Compound body prevents creating cyclic references', () {
       final compound1 = CCompound();
       final compound2 = CCompound();
       final sphere = CSphere(1.0, 1.0);
@@ -89,6 +89,11 @@ void main() {
       compound1.addChildBody(sphere);
       compound2.addChildBody(compound1);
       expect(compound1.addChildBody(compound2), isFalse);
+    });
+
+    test('Compound body cannot contain itself directly', () {
+      final compound = CCompound();
+      expect(compound.addChildBody(compound), isFalse);
     });
   });
 }
