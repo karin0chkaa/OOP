@@ -5,8 +5,11 @@ class CParallelepiped extends CSolidBody {
   final double _height;
   final double _depth;
 
-  CParallelepiped(double density, this._width, this._height, this._depth)
-    : super(density) {
+  CParallelepiped(double density, double width, double height, double depth)
+    : _width = width,
+      _height = height,
+      _depth = depth,
+      super(density) {
     if (_width <= 0 || _height <= 0 || _depth <= 0) {
       throw ArgumentError('All dimensions must be positive');
     }

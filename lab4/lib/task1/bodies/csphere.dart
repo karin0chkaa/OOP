@@ -4,7 +4,7 @@ import 'package:lab4/task1/bodies/csolid_body.dart';
 class CSphere extends CSolidBody {
   final double _radius;
 
-  CSphere(double density, this._radius) : super(density) {
+  CSphere(double density, double radius) : _radius = radius, super(density) {
     if (_radius <= 0) {
       throw ArgumentError('Radius must be positive');
     }
